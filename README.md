@@ -3,7 +3,7 @@
 'mil-toast' is webcomponent that handles non-blocking snackbars & toast notifications.
 It is meant to be loaded in the main view and handles toast notification for the whole application in a single instance.
 
-Demo:
+Demo: https://stackblitz.com/edit/mil-toast-example?file=index.js
 
 ## Usage
 
