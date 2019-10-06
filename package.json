@@ -14,7 +14,7 @@
     "url": "git://github.com/madeInLagny/mil-toast"
   },
   "homepage": "https://github.com/madeInLagny/mil-toast",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Toast webcomponent developed with litElement",
   "main": "mil-toast.js",
   "dependencies": {
