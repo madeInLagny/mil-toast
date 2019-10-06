@@ -268,7 +268,11 @@ export class milToast extends LitElement {
             return toast.timestamp;
           })
           .indexOf(timestamp);
-        self.toasts.splice(index, 1);
+        self.toasts = [
+          ...self.toasts.slice(0, index),
+          ...self.toasts.slice(index + 1)
+        ];
+        /* self.toasts.splice(index, 1); */
       }, 5000);
     }
   }
@@ -281,7 +285,10 @@ export class milToast extends LitElement {
         return toast.text;
       })
       .indexOf(text);
-    this.toasts.splice(index, 1);
+    this.toasts = [
+      ...this.toasts.slice(0, index),
+      ...this.toasts.slice(index + 1)
+    ];
   }
 
   toastClicked(e, item) {
