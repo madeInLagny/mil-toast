@@ -1,14 +1,40 @@
 import { LitElement, html, css } from "lit-element";
-/* import { unIcon, unAutreIcon } from "./icons.js"; */
+import { unsafeHTML } from "lit-html/directives/unsafe-html.js";
 
-class milToast extends LitElement {
-  static get properties() {
-    return { what: String };
+export class milToast extends LitElement {
+  connectedCallback() {
+    super.connectedCallback();
+    window.addEventListener("openToast", e => this._toastOpen(e));
+    window.addEventListener("openStickyToast", e => this._stickyToastOpen(e));
+    window.addEventListener("closeStickyToast", e => this._stickyToastClose(e));
   }
 
-  constructor() {
-    super();
-    this.what = "What is what ?";
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    window.removeEventListener("openToast", e => this._toastOpen(e));
+    window.removeEventListener("openStickyToast", e =>
+      this._stickyToastOpen(e)
+    );
+    window.removeEventListener("closeStickyToast", e =>
+      this._stickyToastClose(e)
+    );
+  }
+
+  static get properties() {
+    return {
+      type: {
+        type: String
+      },
+      text: {
+        type: String
+      },
+      sticky: {
+        type: Boolean
+      },
+      toasts: {
+        type: Array
+      }
+    };
   }
 
   static get styles() {
@@ -17,27 +43,43 @@ class milToast extends LitElement {
         :host {
           display: block;
         }
-        .success {
-          border-color: var(--success-border-color, #27ae60) !important;
-          background-color: var(--success-background-color, #2ecc71) !important;
+        .success .iconBox {
+          background-color: var(--success-icon-box-color, #27ae60) !important;
+          fill: var(--success-text-color, #fff) !important;
+        }
+
+        .success .textBox {
+          background-color: var(--success-text-box-color, #2ecc71) !important;
           color: var(--success-text-color, #fff) !important;
         }
 
-        .danger {
-          border-color: var(--danger-border-color, #c0392b) !important;
-          background-color: var(--danger-background-color, #e74c3c) !important;
-          color: var(--danger-text-color, #fff) !important;
+        .info .iconBox {
+          background-color: var(--info-icon-box-color, #2980b9) !important;
+          fill: var(--info-text-color, #fff) !important;
         }
 
-        .info {
-          border-color: var(--info-border-color, #2980b9) !important;
-          background-color: var(--info-background-color, #3498db) !important;
+        .info .textBox {
+          background-color: var(--info-text-box-color, #3498db) !important;
           color: var(--info-text-color, #fff) !important;
         }
 
-        .warning {
-          border-color: var(--warning-border-color, #d35400) !important;
-          background-color: var(--warning-background-color, #e67e22) !important;
+        .danger .iconBox {
+          background-color: var(--danger-icon-box-color, #c0392b) !important;
+          fill: var(--danger-text-color, #fff) !important;
+        }
+
+        .danger .textBox {
+          background-color: var(--danger-text-box-color, #e74c3c) !important;
+          color: var(--danger-text-color, #fff) !important;
+        }
+
+        .warning .iconBox {
+          background-color: var(--warning-icon-box-color, #d35400) !important;
+          fill: var(--warning-text-color, #fff) !important;
+        }
+
+        .warning .textBox {
+          background-color: var(--warning-text-box-color, #e67e22) !important;
           color: var(--warning-text-color, #fff) !important;
         }
 
@@ -53,23 +95,14 @@ class milToast extends LitElement {
         .toast {
           visibility: hidden;
           min-width: 250px;
-          background-color: #333;
           color: #fff;
           text-align: center;
-          border-radius: 2px;
-          padding: 16px;
           font-size: 17px;
-          border-left-width: 4rem;
-        }
-
-        @media (min-width: 768px) {
-          #toastContainer {
-            width: 50%;
-          }
-
-          .toast {
-            margin-left: -125px;
-          }
+          display: flex;
+          justify-content: space-between;
+          max-width: 80%;
+          margin: auto;
+          margin-top: 10px;
         }
 
         .toast.show:not(.sticky) {
@@ -84,14 +117,26 @@ class milToast extends LitElement {
           animation: fadeIn 0.5s;
         }
 
-        iron-icon {
-          color: #fff;
+        .iconBox {
           width: 4rem;
-          left: -4rem;
+          padding: 16px;
+          border-top-left-radius: 2px;
+          border-bottom-left-radius: 2px;
+          display: flex;
+          align-items: center;
+        }
+
+        .textBox {
+          flex: 1;
+          padding: 16px;
+          border-top-right-radius: 2px;
+          border-bottom-right-radius: 2px;
+        }
+
+        svg {
+          fill: #fff;
+          width: 4rem;
           text-align: center;
-          position: absolute;
-          top: 50%;
-          margin-top: -12px;
           font-size: 1.25rem;
           font-weight: 400;
           line-height: 1;
@@ -142,14 +187,172 @@ class milToast extends LitElement {
     ];
   }
 
+  /**
+   * Instance of the element is created/upgraded. Useful for initializing
+   * state, set up event listeners, create shadow dom.
+   * @constructor
+   */
+  constructor() {
+    super();
+    this.toasts = [];
+  }
+
   render() {
     return html`
-      ${unIcon}
+      <div id="toastContainer">
+        ${this.toasts.map(
+          toast =>
+            html`
+              <div
+                class="toast alert ${toast.type} show ${toast.sticky}"
+                @click="${e => this.toastClicked(e, toast)}"
+              >
+                <div class="iconBox">
+                  ${this._showSVG(toast.type)}
+                </div>
+                <div class="textBox">
+                  <strong>
+                    ${unsafeHTML(toast.text)}.
+                  </strong>
+                </div>
+              </div>
+            `
+        )}
+      </div>
     `;
   }
 
-  firstUpdated() {
-    super.firstUpdated();
+  _toastOpen(e) {
+    this.launch_toast(e.detail.toastText, e.detail.toastClass);
+  }
+
+  _stickyToastOpen(e) {
+    this.launch_toast(
+      e.detail.toastText,
+      e.detail.toastClass,
+      "sticky",
+      e.detail.reload
+    );
+  }
+
+  _stickyToastClose(e) {
+    this.close_toast(e.detail.toastText, e.detail.toastClass, "sticky");
+  }
+
+  launch_toast(text, type, sticky, reload) {
+    if (!text) {
+      console.warn("Un toast sans texte a été reçu.");
+      return false;
+    }
+
+    var timestamp = Date.now();
+
+    var toast = {
+      type: type,
+      text: text,
+      sticky: sticky,
+      timestamp: timestamp,
+      reload: reload
+    };
+
+    //Add toast to toasts array
+    this.toasts = [...this.toasts, toast];
+
+    var self = this;
+
+    //Remove toast from object
+    if (!sticky) {
+      setTimeout(function() {
+        var index = self.toasts
+          .map(function(toast) {
+            return toast.timestamp;
+          })
+          .indexOf(timestamp);
+        self.toasts.splice(index, 1);
+      }, 5000);
+    }
+  }
+
+  close_toast(text, type, sticky) {
+    if (!text) return false;
+
+    var index = this.toasts
+      .map(function(toast) {
+        return toast.text;
+      })
+      .indexOf(text);
+    this.toasts.splice(index, 1);
+  }
+
+  toastClicked(e, item) {
+    var reload = item.reload;
+    if (reload) {
+      window.location.reload();
+    }
+  }
+
+  _showSVG(type) {
+    switch (type) {
+      case "info":
+        return html`
+          <svg
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="28"
+            viewBox="0 0 24 28"
+          >
+            <path
+              d="M16 21.5v-2.5c0-0.281-0.219-0.5-0.5-0.5h-1.5v-8c0-0.281-0.219-0.5-0.5-0.5h-5c-0.281 0-0.5 0.219-0.5 0.5v2.5c0 0.281 0.219 0.5 0.5 0.5h1.5v5h-1.5c-0.281 0-0.5 0.219-0.5 0.5v2.5c0 0.281 0.219 0.5 0.5 0.5h7c0.281 0 0.5-0.219 0.5-0.5zM14 7.5v-2.5c0-0.281-0.219-0.5-0.5-0.5h-3c-0.281 0-0.5 0.219-0.5 0.5v2.5c0 0.281 0.219 0.5 0.5 0.5h3c0.281 0 0.5-0.219 0.5-0.5zM24 14c0 6.625-5.375 12-12 12s-12-5.375-12-12 5.375-12 12-12 12 5.375 12 12z"
+            ></path>
+          </svg>
+        `;
+
+      case "warning":
+        html`
+          <svg
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="28"
+            viewBox="0 0 24 28"
+          >
+            <path
+              d="M12 2c6.625 0 12 5.375 12 12s-5.375 12-12 12-12-5.375-12-12 5.375-12 12-12zM14 21.484v-2.969c0-0.281-0.219-0.516-0.484-0.516h-3c-0.281 0-0.516 0.234-0.516 0.516v2.969c0 0.281 0.234 0.516 0.516 0.516h3c0.266 0 0.484-0.234 0.484-0.516zM13.969 16.109l0.281-9.703c0-0.109-0.047-0.219-0.156-0.281-0.094-0.078-0.234-0.125-0.375-0.125h-3.437c-0.141 0-0.281 0.047-0.375 0.125-0.109 0.063-0.156 0.172-0.156 0.281l0.266 9.703c0 0.219 0.234 0.391 0.531 0.391h2.891c0.281 0 0.516-0.172 0.531-0.391z"
+            ></path>
+          </svg>
+        `;
+
+      case "success":
+        return html`
+          <svg
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="28"
+            viewBox="0 0 24 28"
+          >
+            <path
+              d="M20.062 11.469c0-0.266-0.094-0.531-0.281-0.719l-1.422-1.406c-0.187-0.187-0.438-0.297-0.703-0.297s-0.516 0.109-0.703 0.297l-6.375 6.359-3.531-3.531c-0.187-0.187-0.438-0.297-0.703-0.297s-0.516 0.109-0.703 0.297l-1.422 1.406c-0.187 0.187-0.281 0.453-0.281 0.719s0.094 0.516 0.281 0.703l5.656 5.656c0.187 0.187 0.453 0.297 0.703 0.297 0.266 0 0.531-0.109 0.719-0.297l8.484-8.484c0.187-0.187 0.281-0.438 0.281-0.703zM24 14c0 6.625-5.375 12-12 12s-12-5.375-12-12 5.375-12 12-12 12 5.375 12 12z"
+            ></path>
+          </svg>
+        `;
+
+      case "danger":
+        html`
+          <svg
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="28"
+            viewBox="0 0 24 28"
+          >
+            <path
+              d="M17.953 17.531c0-0.266-0.109-0.516-0.297-0.703l-2.828-2.828 2.828-2.828c0.187-0.187 0.297-0.438 0.297-0.703s-0.109-0.531-0.297-0.719l-1.406-1.406c-0.187-0.187-0.453-0.297-0.719-0.297s-0.516 0.109-0.703 0.297l-2.828 2.828-2.828-2.828c-0.187-0.187-0.438-0.297-0.703-0.297s-0.531 0.109-0.719 0.297l-1.406 1.406c-0.187 0.187-0.297 0.453-0.297 0.719s0.109 0.516 0.297 0.703l2.828 2.828-2.828 2.828c-0.187 0.187-0.297 0.438-0.297 0.703s0.109 0.531 0.297 0.719l1.406 1.406c0.187 0.187 0.453 0.297 0.719 0.297s0.516-0.109 0.703-0.297l2.828-2.828 2.828 2.828c0.187 0.187 0.438 0.297 0.703 0.297s0.531-0.109 0.719-0.297l1.406-1.406c0.187-0.187 0.297-0.453 0.297-0.719zM24 14c0 6.625-5.375 12-12 12s-12-5.375-12-12 5.375-12 12-12 12 5.375 12 12z"
+            ></path>
+          </svg>
+        `;
+    }
   }
 }
 
