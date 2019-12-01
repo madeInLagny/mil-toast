@@ -132,54 +132,6 @@ npm run format:eslint
 npm run format:prettier
 ```
 
-## Testing with Karma
-To run the suite of karma tests, run
-```bash
-npm run test
-```
-or to run them in compatibility mode for legacy browsers
-```bash
-npm run test:compatibility
-```
-
-To run the tests in watch mode (for <abbr title="test driven development">TDD</abbr>, for example), run
-
-```bash
-npm run test:watch
-```
-or
-```bash
-npm run test:compatibility
-```
-
-## Testing with Karma via BrowserStack
-To run the suite of karma tests in BrowserStack, run
-```bash
-npm run test:bs
-```
-
-## Managing Test Snapshots
-You can manage the test snapshots using
-```bash
-npm run test:update-snapshots
-```
-or
-```bash
-npm run test:prune-snapshots
-```
-
-## Demoing with Storybook
-To run a local instance of Storybook for your component, run
-```bash
-npm run storybook
-```
-
-To build a production version of Storybook, run
-```bash
-npm run storybook:build
-```
-
-
 ## Local Demo with `es-dev-server`
 ```bash
 npm start
