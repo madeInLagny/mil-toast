@@ -1,5 +1,6 @@
 {
   "name": "mil-toast",
+  "version": "1.1.0",
   "author": "MIL Made In Lagny",
   "keywords": [
     "toast",
@@ -14,20 +15,48 @@
     "url": "https://github.com/madeInLagny/mil-toast.git"
   },
   "homepage": "https://github.com/madeInLagny/mil-toast",
-  "version": "1.0.6",
-  "description": "Toast webcomponent developed with litElement",
-  "main": "mil-toast.js",
+  "description": "Toast notifications Webcomponent following open-wc recommendations",
+  "license": "MIT",
+  "main": "index.js",
+  "module": "index.js",
+  "scripts": {
+    "start": "es-dev-server --app-index demo/index.html --node-resolve --open --watch",
+    "lint:eslint": "eslint --ext .js,.html . --ignore-path .gitignore",
+    "format:eslint": "eslint --ext .js,.html . --fix --ignore-path .gitignore",
+    "lint:prettier": "prettier \"**/*.js\" --check --ignore-path .gitignore",
+    "format:prettier": "prettier \"**/*.js\" --write --ignore-path .gitignore",
+    "lint": "npm run lint:eslint && npm run lint:prettier",
+    "format": "npm run format:eslint && npm run format:prettier"
+  },
   "dependencies": {
-    "@polymer/polymer": "^3.0.0",
-    "lit-element": "^2.2.1"
+    "lit-html": "^1.0.0",
+    "lit-element": "^2.0.1"
   },
   "devDependencies": {
-    "@polymer/iron-component-page": "^3.0.0-pre.20",
-    "@polymer/iron-demo-helpers": "^3.1.0",
-    "@polymer/test-fixture": "^4.0.2",
-    "@webcomponents/webcomponentsjs": "^2.0.0",
-    "chai": "^4.2.0",
-    "mocha": "^6.1.4",
-    "wct-mocha": "^1.0.1"
+    "es-dev-server": "^1.5.0",
+    "eslint": "^6.1.0",
+    "@open-wc/eslint-config": "^1.0.0",
+    "@open-wc/prettier-config": "^0.1.10",
+    "husky": "^1.0.0",
+    "lint-staged": "^8.0.0",
+  },
+  "eslintConfig": {
+    "extends": [
+      "@open-wc/eslint-config",
+      "eslint-config-prettier"
+    ]
+  },
+  "prettier": "@open-wc/prettier-config",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write",
+      "git add"
+    ]
   }
 }

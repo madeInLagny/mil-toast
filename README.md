@@ -1,27 +1,21 @@
-# \<mil-toast\>
+# \<mil-toast>
+'mil-toast' is toast notification webcomponent .
 
-'mil-toast' is webcomponent that handles non-blocking snackbars & toast notifications.
-It is meant to be loaded in the main view and handles toast notification for the whole application in a single instance.
+This webcomponent follows the [open-wc](https://github.com/open-wc/open-wc) recommendation.
 
-Demo: https://stackblitz.com/edit/mil-toast-example?file=index.js
+See it in action on Stackblitz: https://stackblitz.com/edit/mil-toast-example?file=index.js
+
+## Installation
+```bash
+npm i mil-toast
+```
 
 ## Usage
+```html
+<script type="module">
+  import 'mil-toast/mil-toast.js';
+</script>
 
-### Install from npm
-
-```sh
-npm install --save mil-toast
-```
-
-### Import to your webcomponent
-
-```js
-import "mil-toast";
-```
-
-### Add to html
-
-```js
 <mil-toast></mil-toast>
 ```
 
@@ -42,25 +36,24 @@ Customs properties for 'danger', 'warning' and 'info' are available with the sam
 Toasts are managed by customs events.
 
 ```js
+/* Show a toast for 6 seconds */
 this.dispatchEvent(
   new CustomEvent("openToast", {
     bubbles: true,
     composed: true,
     detail: {
       toastText: "Show me a toast",
-      toastClass: "info",
-      reload: true
+      toastClass: "info"
     }
   })
 );
 ```
 
-reload: true makes the toast clickable and generates a page reload.
 toastClass are 'info', 'warning', 'danger' and 'success'
 
-Toasts will remain open for 4.5s and close-off.
+Toasts will remain open for 6s and close-off.
 
-To show Toasts that remain open until a close instruction is received, do the following:
+To show Toasts that remain open until a user instruction is received, do the following:
 
 ```js
 this.dispatchEvent(
@@ -75,7 +68,7 @@ this.dispatchEvent(
 );
 ```
 
-to close the toast:
+to close toast:
 
 ```js
 this.dispatchEvent(
@@ -90,4 +83,110 @@ this.dispatchEvent(
 );
 ```
 
-\*\*\* toastText must be identical in both custom events
+Toasts can also be closed from a tap event. 2 options are available: reload or close.
+
+```js
+this.dispatchEvent(
+  new CustomEvent("openStickyToast", {
+    bubbles: true,
+    composed: true,
+    detail: {
+      toastText: "This toast will remain open until closeStickToast is fired",
+      toastClass: "warning",
+      reload: true,
+      close: true
+    }
+  })
+);
+```
+
+reload: true makes the toast clickable and generates a page reload.
+close: true shows a close button.
+
+\*\*\* In all cases, toastText must be identical in both open and close events.
+
+## Linting with ESLint, Prettier, and Types
+To scan the project for linting errors, run
+```bash
+npm run lint
+```
+
+You can lint with ESLint and Prettier individually as well
+```bash
+npm run lint:eslint
+```
+```bash
+npm run lint:prettier
+```
+
+To automatically fix many linting errors, run
+```bash
+npm run format
+```
+
+You can format using ESLint and Prettier individually as well
+```bash
+npm run format:eslint
+```
+```bash
+npm run format:prettier
+```
+
+## Testing with Karma
+To run the suite of karma tests, run
+```bash
+npm run test
+```
+or to run them in compatibility mode for legacy browsers
+```bash
+npm run test:compatibility
+```
+
+To run the tests in watch mode (for <abbr title="test driven development">TDD</abbr>, for example), run
+
+```bash
+npm run test:watch
+```
+or
+```bash
+npm run test:compatibility
+```
+
+## Testing with Karma via BrowserStack
+To run the suite of karma tests in BrowserStack, run
+```bash
+npm run test:bs
+```
+
+## Managing Test Snapshots
+You can manage the test snapshots using
+```bash
+npm run test:update-snapshots
+```
+or
+```bash
+npm run test:prune-snapshots
+```
+
+## Demoing with Storybook
+To run a local instance of Storybook for your component, run
+```bash
+npm run storybook
+```
+
+To build a production version of Storybook, run
+```bash
+npm run storybook:build
+```
+
+
+## Local Demo with `es-dev-server`
+```bash
+npm start
+```
+To run a local development server that serves the basic demo located in `demo/index.html`
+
+```bash
+npm start:compatibility
+```
+To run a local development server in compatibility mode for older browsers that serves the basic demo located in `demo/index.html`
