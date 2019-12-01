@@ -3,7 +3,7 @@
 
 This webcomponent follows the [open-wc](https://github.com/open-wc/open-wc) recommendation.
 
-See it in action on Stackblitz: https://stackblitz.com/edit/mil-toast-example?file=index.js
+Demo: https://stackblitz.com/edit/mil-toast-example?file=index.js
 
 ## Installation
 ```bash
